@@ -3,6 +3,7 @@
 const express=require('express')
 const mongoose=require('mongoose')
 var bodyParser=require('body-parser')
+var Cookies=require('cookies')
 //设置静态文件托管
 
 //创建app 应用
@@ -16,13 +17,24 @@ app.use('/public',express.static(__dirname+'/public'))
 // app.set('view engine','html')
 
 // swig.setDefaults({cache:false})
-
-app.use(bodyParser.urlencoded({extended:true}))
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
 /*
  * 根据不同的功能划分模块(路由分块)
  *
  * */
-
+app.use(function (req, res, next) {
+  req.cookies=new Cookies(req,res);
+  req.userInfo={};
+  if(req.cookies.get('userInfo')){
+    console.log(req.cookies.get('userInfo'))
+    try {
+      req.userInfo=JSON.parse(req.cookies.get('userInfo'))
+    }catch (e){
+      console.log(e)
+    }
+  }
+})
 
 // error handler
 app.use(function(err, req, res, next) {
@@ -35,9 +47,9 @@ app.use(function(err, req, res, next) {
   res.send('error');
 });
 
-app.use('/admin', require('./routers/admin'));
+// app.use('/admin', require('./routers/admin'));
 app.use('/api', require('./routers/api'));
-app.use('/', require('./routers/main'));
+// app.use('/', require('./routers/main'));
 
 
 mongoose.connect('mongodb://127.0.0.1:27017/blog',function (err) {
