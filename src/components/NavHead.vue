@@ -5,12 +5,7 @@
         <a class="navbar-brand" href="#">Wu Xiaolong</a>
       </div>
       <ul class="nav">
-        <router-link tag="li" to="/category">Home</router-link>
-        <router-link tag="li" to="/">html</router-link>
-        <router-link tag="li" to="/">css</router-link>
-        <router-link tag="li" to="/">javascript</router-link>
-        <router-link tag="li" to="/">node</router-link>
-        <router-link tag="li" to="/">vue</router-link>
+        <router-link tag="li" to="/category" v-for="(item,index) in categories">{{item.name}}</router-link>
       </ul>
     </div>
   </div>
@@ -18,7 +13,22 @@
 
 <script>
   export default {
-    name: "nav-head"
+    name: "nav-head",
+    data(){
+      return{
+        categories:[]
+      }
+    },
+    created(){
+      this.getCategories()
+    },
+    methods:{
+      getCategories(){
+        this.$http.get('/main').then(res=>{
+          this.categories=res.data.categories;
+        })
+      }
+    }
   }
 </script>
 
@@ -44,6 +54,7 @@
         float: right;
         margin-right: 100px;
         & > li {
+          cursor: pointer;
           font-size: 16px;
           display: inline-block;
           line-height: 40px;

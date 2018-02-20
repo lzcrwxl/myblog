@@ -14,6 +14,12 @@ module.exports = {
       '/api':{
         target:'http://localhost:3000',
       },
+      '/admin':{
+        target:'http://localhost:3000',
+      },
+      '/main':{
+        target:'http://localhost:3000',
+      },
     },
     // Various Dev Server settings
     host: 'localhost', // can be overwritten by process.env.HOST

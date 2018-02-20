@@ -17,9 +17,9 @@ router.use(function (req,res,next) {
 
 
 router.get('/user/checkLogin',function (req,res,next) {
-  console.log(req.cookies.userInfo)
-  if(req.cookies.userInfo){
-    responseData.userInfo=req.cookies.userInfo;
+  console.log(req.userInfo)
+  if(req.userInfo.username){
+    responseData.userInfo=req.userInfo;
     res.json(responseData)
   }else {
     responseData.code=99999;
@@ -91,7 +91,7 @@ router.post('/user/login',(req,res,next)=>{
   }
   User.findOne({
     username:username,
-    password:password
+    password:password,
   },function (err, doc) {
     console.log(doc)
     if(err){
@@ -110,7 +110,8 @@ router.post('/user/login',(req,res,next)=>{
         responseData.msg="登陆成功";
         responseData.userInfo={
           id:userInfo._id,
-          username:userInfo.username
+          username:userInfo.username,
+          isAdmin: userInfo.isAdmin,
         }
         req.cookies.set("userInfo",JSON.stringify({
           id:userInfo._id,
@@ -124,5 +125,10 @@ router.post('/user/login',(req,res,next)=>{
       }
 
   })
+})
+
+router.get('/user/logout',function (req, res, next) {
+  req.cookies.set("userInfo",null)
+  res.json(responseData)
 })
 module.exports=router;

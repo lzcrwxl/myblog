@@ -5,7 +5,7 @@ const mongoose=require('mongoose')
 var bodyParser=require('body-parser')
 var Cookies=require('cookies')
 //设置静态文件托管
-
+var User = require('./models/User.js');
 //创建app 应用
 var app=express();
 //第一个末班引擎后缀，第二个解析方法
@@ -27,12 +27,18 @@ app.use(function (req, res, next) {
   req.cookies=new Cookies(req,res);
   req.userInfo={};
   if(req.cookies.get('userInfo')){
-    console.log(req.cookies.get('userInfo'))
     try {
       req.userInfo=JSON.parse(req.cookies.get('userInfo'))
+      User.findById(req.userInfo.id).then(function (userInfo) {
+        req.userInfo.isAdmin=Boolean(userInfo.isAdmin)
+        next();
+      })
     }catch (e){
+      next();
       console.log(e)
     }
+  }else {
+    next();
   }
 })
 
@@ -47,9 +53,9 @@ app.use(function(err, req, res, next) {
   res.send('error');
 });
 
-// app.use('/admin', require('./routers/admin'));
+app.use('/admin', require('./routers/admin'));
 app.use('/api', require('./routers/api'));
-// app.use('/', require('./routers/main'));
+app.use('/main', require('./routers/main'));
 
 
 mongoose.connect('mongodb://127.0.0.1:27017/blog',function (err) {

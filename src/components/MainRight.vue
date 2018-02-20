@@ -22,7 +22,7 @@
           <input type="text" class="form-control" placeholder="用户名" v-model="username">
         </div>
         <div class="form-group">
-          <input type="password" class="form-control" placeholder="密码" v-model="password">
+          <input type="password" class="form-control" placeholder="密码" v-model="password" @keyup.enter="login">
         </div>
       </div>
       <p class="rlBtn" @click="login">登录</p>
@@ -115,7 +115,7 @@
         username:"",
         password:"",
         repassword:"",
-        isAdmin:"",
+        isAdmin:false,
         warningInfo:""
       }
     },
@@ -128,7 +128,14 @@
     methods:{
       checkLogin(){
         this.$http.get('/api/user/checkLogin').then(response=>{
-          console.log(response)
+          var res=response.data;
+          if(res.code==0){
+            this.showLogin = !this.showLogin;
+            this.showLogined = !this.showLogined;
+            this.username = res.userInfo.username;
+            this.isAdmin=res.userInfo.isAdmin
+          }
+          console.log(res)
         })
       },
       toggleRL(){
@@ -156,12 +163,12 @@
         },).then(response=>{
           var res=response.data;
           if(res.code==0){
-            this.warningInfo=res.data.msg;
+            this.warningInfo=res.msg;
             this.toggleRL();
+          }else {
+            console.log(res)
+            this.warningInfo=res.msg;
           }
-          console.log(res)
-
-
         }).catch(err=>{
           console.log(err)
         })
@@ -182,12 +189,18 @@
           }else {
             this.showLogin = !this.showLogin;
             this.showLogined = !this.showLogined;
-            this.username = response.data.userInfo.username;
+            this.username = res.userInfo.username;
+            this.isAdmin=res.userInfo.isAdmin
           }
         })
       },
       logout(){
-
+        this.$http.get('/api/user/logout').then(res=>{
+          if(res.data.code==0){
+            this.showLogin = !this.showLogin;
+            this.showLogined = !this.showLogined;
+          }
+        })
       }
     }
   }
