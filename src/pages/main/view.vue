@@ -122,6 +122,7 @@
           contentid: this.$route.query['id'],
           content: this.editing_comment,
         }).then(response => {
+          console.log(response.data.data)
           this.editing_comment = "";
           this.content = response.data.data;
           this.content.comments.reverse();

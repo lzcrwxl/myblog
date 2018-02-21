@@ -1,5 +1,6 @@
 const express=require('express')
 const router=express.Router();
+const common=require('../libs/common')
 
 var responseData;
 var User=require('../models/User')
@@ -31,9 +32,10 @@ router.get('/user/checkLogin',function (req,res,next) {
 //注册
 router.post('/user/register',function (req, res, next) {
   var username=req.body.username;
-  var password=req.body.password;
-  var repassword=req.body.repassword;
-
+  // var password=req.body.password;
+  // var repassword=req.body.repassword;
+  var password=common.md5(req.body.password+common.MD5_SUFFIX);
+  var repassword=common.md5(req.body.repassword+common.MD5_SUFFIX);
   //用户名是否为空
   if(username==''){
     responseData.code=1;
@@ -82,8 +84,8 @@ router.post('/user/register',function (req, res, next) {
 
 router.post('/user/login',(req,res,next)=>{
   var username=req.body.username;
-  var password=req.body.password;
-
+  // var password=req.body.password;
+  var password=common.md5(req.body.password+common.MD5_SUFFIX);
   if (username == ''||password == '') {
     responseData.code=1;
     responseData.msg= '用户名或密码不能为空';
@@ -145,7 +147,7 @@ router.post('/comment/post',function (req,res) {
 //
   Content.findOne({
     _id:contentId
-  }).then(function (content) {
+  }).populate('category').then(function (content) {
     content.comments.push(postData);
     return content.save()
   }).then(function (newContent) {
