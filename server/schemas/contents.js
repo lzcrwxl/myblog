@@ -9,7 +9,22 @@ module.exports=new mongoose.Schema({
   category:{
     type:mongoose.Schema.Types.ObjectId,
     //引用
-    ref:'Content'
+    ref:'Category'
+  },
+  user:{
+    type:mongoose.Schema.Types.ObjectId,
+    //引用
+    ref:'User'
+  },
+  //添加事件
+  addTime:{
+    type:Date,
+    default:new Date()
+  },
+//  阅读量
+  views:{
+    type:Number,
+    default:0
   },
 //  简介
   description:{
@@ -20,4 +35,9 @@ module.exports=new mongoose.Schema({
     type:String,
     default:''
   },
+//  评论
+  comments:{
+    type:Array,
+    default:[]
+  }
 })

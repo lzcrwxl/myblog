@@ -48,14 +48,13 @@
   }
 </script>
 
-<style lang="less">
+<style lang="less" scoped>
   .admin_index {
     display: flex;
     .el-menu {
       width: 200px;
     }
   }
-
   #levelTwo {
     position: relative;
     display: flex;

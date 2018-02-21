@@ -11,6 +11,7 @@ import category_edit from '../pages/admin/category_edit'
 import content_index from '../pages/admin/content_index.vue'
 import content_add from '../pages/admin/content_add.vue'
 import content_edit from '../pages/admin/content_edit.vue'
+import view from '../pages/main/view.vue'
 
 Vue.use(Router)
 
@@ -28,6 +29,10 @@ export default new Router({
         {
           path:'/category',
           component:indexList
+        },
+        {
+          path:'/view',
+          component:view
         }
       ]
     },

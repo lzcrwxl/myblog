@@ -72,7 +72,7 @@ router.get('/category', function (req, res) {
     page = Math.max(page, 1)
     var skip = (page - 1) * limit;
 
-    Category.find().sort({_id:-1}).limit(limit).skip(skip).then(function (categories) {
+    Category.find().sort({_id: -1}).limit(limit).skip(skip).then(function (categories) {
       res.json({
         userInfo: req.userInfo,
         categories: categories,
@@ -112,7 +112,6 @@ router.post('/category/add', function (req, res) {
 //分类修改
 router.get('/category/edit', function (req, res) {
 //  获取要修改的分类信息，并且用表单的形式展现出来
-  console.log(req.query.id)
   var id = req.query.id || "";
   Category.findOne({
     _id: id
@@ -133,7 +132,6 @@ router.get('/category/edit', function (req, res) {
 
 router.post('/category/edit', function (req, res) {
   var id = req.body.id;
-  console.log(id)
   var name = req.body.name || "";
   Category.findOne({
     _id: id
@@ -171,10 +169,10 @@ router.post('/category/edit', function (req, res) {
 
 
 //分类删除
-router.get('/category/delete',function (req, res) {
+router.get('/category/delete', function (req, res) {
   var id = req.query.id || "";
   Category.remove({
-    _id:id
+    _id: id
   }).then(function () {
     responseData.code = 0;
     responseData.msg = '删除成功';
@@ -182,7 +180,7 @@ router.get('/category/delete',function (req, res) {
   })
 })
 //内容首页
-router.get('/content',function (req,res) {
+router.get('/content', function (req, res) {
   var page = Number(req.query.page || 1);
   var limit = Number(req.query.limit || 5);
   ;
@@ -193,7 +191,7 @@ router.get('/content',function (req,res) {
     page = Math.max(page, 1)
     var skip = (page - 1) * limit;
 
-    Content.find().sort({_id:-1}).limit(limit).skip(skip).then(function (contents) {
+    Content.find().sort({_id: -1}).limit(limit).skip(skip).populate(['category','user']).then(function (contents) {
       res.json({
         userInfo: req.userInfo,
         contents: contents,
@@ -207,25 +205,79 @@ router.get('/content',function (req,res) {
 })
 
 //内容添加
-router.get('/content/add',function (req,res) {
-  Category.find().sort({_id:-1}).then(categories=>{
+router.get('/content/add', function (req, res) {
+  Category.find().sort({_id: -1}).then(categories => {
     res.json({
-      categories:categories
+      categories: categories
     })
   })
 })
 //内容保存
-router.post('/content/add',function (req,res) {
+router.post('/content/add', function (req, res) {
   new Content({
-    category:req.body.category,
-    title:req.body.title,
-    description:req.body.description,
-    content:req.body.content
-  }).save().then(rs=>{
-    responseData.code=0;
-    responseData.msg="内容保存成功";
+    category: req.body.category,
+    title: req.body.title,
+    user:req.userInfo.id.toString(),
+    description: req.body.description,
+    content: req.body.content
+  }).save().then(rs => {
+    responseData.code = 0;
+    responseData.msg = "内容保存成功";
     res.json(responseData)
   })
   console.log(req.body)
+})
+
+//修改内容
+
+router.get('/content/edit', function (req, res) {
+  var id = req.query.id || "";
+  var categories=[];
+  Category.find().sort({_id: -1}).then(rs => {
+    categories=rs;
+    return Content.findOne({
+      _id: id
+    }).then(function (content) {
+      if (!content) {
+        responseData.code = 1;
+        responseData.msg = "指定内容不存在"
+        res.json(responseData)
+      } else {
+        res.json({
+          userInfo: req.userInfo,
+          categories:categories,
+          content: content
+        })
+      }
+    })
+  })
+})
+
+//保存修改内容
+router.post('/content/edit',function (req, res) {
+  var id = req.body.id;
+  console.log(req.body)
+  Content.update({
+    _id:id
+  },{
+    category: req.body.category,
+    title: req.body.title,
+    description: req.body.description,
+    content: req.body.content
+  }).then(function () {
+    responseData.msg="内容保存成功"
+    res.json(responseData)
+  })
+})
+
+//内容删除
+router.get('/content/delete',function (req, res) {
+  var id=req.query.id||""
+  Content.remove({
+    _id:id
+  }).then(function () {
+    responseData.msg="删除成功";
+    res.json(responseData)
+  })
 })
 module.exports = router;

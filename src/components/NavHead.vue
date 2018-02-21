@@ -2,10 +2,18 @@
   <div class="header">
     <div class="navbar">
       <div class="navbar-header">
-        <a class="navbar-brand" href="#">Wu Xiaolong</a>
+        <a class="navbar-brand" href="#">Musk</a>
       </div>
       <ul class="nav">
-        <router-link tag="li" to="/category" v-for="(item,index) in categories">{{item.name}}</router-link>
+        <li @click="switchTab" class="activeTab">
+          <router-link to="/">
+            首页
+            {{category}}
+          </router-link>
+          </li>
+        <li v-for="(item,index) in categories" @click="switchTab">
+          <router-link :to="{path:'/category',query:{id:item._id}}" :class="{'activeTab':item._id==category}">{{item.name}}</router-link>
+        </li>
       </ul>
     </div>
   </div>
@@ -16,7 +24,8 @@
     name: "nav-head",
     data(){
       return{
-        categories:[]
+        categories:[],
+        category:""
       }
     },
     created(){
@@ -24,15 +33,26 @@
     },
     methods:{
       getCategories(){
-        this.$http.get('/main').then(res=>{
+        this.$http.get('/main',{
+          params:{
+            category:""
+          }
+        }).then(res=>{
           this.categories=res.data.categories;
+          this.category=res.data.category;
         })
+      },
+      switchTab(e){
+        $(e.currentTarget).addClass('activeTab').siblings('li').removeClass('activeTab')
       }
     }
   }
 </script>
 
 <style lang="less" rel="stylesheet/less" scoped>
+  .activeTab{
+    border-bottom: 3px solid #42b983!important;
+  }
   .header {
     box-sizing: border-box;
     height: 90px;
@@ -59,12 +79,12 @@
           display: inline-block;
           line-height: 40px;
           margin-right: 20px;
-        }
-        & > a {
-          padding: 10px;
-          color: #34495e;
-          &:hover {
-            border-bottom: 3px solid #42b983;
+          a {
+            padding: 10px;
+            color: #34495e;
+            &:hover {
+              border-bottom: 3px solid #42b983;
+            }
           }
         }
       }

@@ -33,7 +33,7 @@
         fixed="right"
         label="操作"
         width="100">
-        <template scope="scope">
+        <template slot-scope="scope">
           <el-button type="text" size="small">
             <router-link :to="{path: '/admin/content/edit', query:{id: scope.row._id}}">编辑</router-link>
           </el-button>
@@ -41,7 +41,7 @@
         </template>
       </el-table-column>
     </el-table>
-    <pager :url='url' @getData="gotIt" v-if="render"></pager>
+    <pager :url='url' @getData="gotIt" v-if="rerender"></pager>
   </div>
 </template>
 
@@ -53,25 +53,29 @@
       return {
         tableData: [],
         url: '/admin/content',
-        render: true,
+        rerender: true,
       }
     },
     methods: {
       gotIt(response) {
         console.log(response)
-       /* response.data.contents.forEach((content) => {
+        response.data.contents.forEach((content) => {
           content.addTime = this.formatDate(content.addTime);
-        })*/
+        })
         this.tableData = response.data.contents;
       },
       deleteContent(id) {
-        this.$http.get('http://localhost:8081/admin/content/delete?id=' + id).then(response => {
-          this.render = false;
-          this.$nextTick(function () {
-            this.render = true;
+        this.$http.get('/admin/content/delete',{
+          params:{
+            id:id
+          }
+        }).then(response => {
+          this.rerender = false;
+          this.$nextTick(()=> {
+            this.rerender = true;
           })
           this.$message({
-            message: response.data.message,
+            message: response.data.msg,
             type: 'success'
           });
         }, response => {

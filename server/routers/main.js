@@ -1,30 +1,62 @@
-const express=require('express')
-const router=express.Router();
+const express = require('express')
+const router = express.Router();
 
-var Category=require('../models/Category')
+var Category = require('../models/Category')
+var Content = require('../models/Content')
 
 
 // 统一返回格式
-var responseData;
+var data;
 router.use(function (req, res, next) {
-  responseData = {
-    code: 0,
-    msg: '',
+  data = {
+    userInfo: req.userInfo,
+    categories: [],
   }
-  next();
+  Category.find().then(function (categories) {
+    data.categories = categories;
+    next();
+  })
 });
 
-router.get('/',function (req, res, next) {
-  console.log("gogo")
+//首页
+
+
+router.get('/', function (req, res, next) {
+  data.category = req.query.category || "";
+  data.count = 0;
+  data.page = Number(req.query.page || 1);
+  data.limit = Number(req.query.limit || 5);
+  data.pages = 0;
+
+  var where = {}
+  if (data.category) {
+    where.category = data.category
+  }
   //读取所有的分类信息
-  Category.find().then(function (categories) {
-    console.log(categories)
-    responseData.code=0;
-    res.json({
-      userInfo:req.userInfo,
-      categories:categories
-    })
+  Content.where(where).count().then(function (count) {
+    data.count = count;
+    data.pages = Math.ceil(data.count / data.limit);
+    data.page = Math.min(data.page, data.pages)
+    data.page = Math.max(data.page, 1)
+    var skip = (data.page - 1) * data.limit;
+    return Content.where(where).find().limit(data.limit).skip(skip).populate(['category', 'user']).sort({addTime: -1})
+  }).then(function (contents) {
+    data.contents = contents;
+    res.json(data)
   })
 })
 
-module.exports=router;
+router.get('/view', function (req, res) {
+  var contentId = req.query.contentid || "";
+
+  Content.findOne({
+    _id: contentId
+  }).populate(['category', 'user']).then(function (content) {
+    console.log(content.comments.length)
+    content.views++;
+    content.save();
+    data.content = content;
+    res.json(data)
+  })
+})
+module.exports = router;

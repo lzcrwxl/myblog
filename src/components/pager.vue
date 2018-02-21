@@ -50,7 +50,7 @@
 	}
 </script>
 
-<style lang="less">
+<style lang="less" scoped>
   .v-pager{
     position:absolute;
     bottom:5px;
