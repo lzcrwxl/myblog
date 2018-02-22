@@ -8,7 +8,7 @@
           <span>时间: <el-tag type="primary">{{ content.addTime }}</el-tag></span>
           <span>类别: <el-tag type="primary">{{content.category.name }}</el-tag></span>
           <span>阅读量: <el-tag type="primary">{{ content.views }}</el-tag></span>
-          <span>评论: <el-tag type="primary">{{ content.comments.length }}</el-tag></span>
+          <span>评论: <el-tag type="primary">{{count}}</el-tag></span>
         </p>
         <div v-html="compiledMarkdown" class="content"></div>
       </div>
@@ -27,9 +27,9 @@
         <el-button type="primary" @click="onSubmit">发表评论</el-button>
       </div>
       <div class="commentList">
-        <h2 class="CommentTopbar-title">{{ content.comments.length }} 条评论</h2>
+        <h2 class="CommentTopbar-title">{{count}} 条评论</h2>
         <ul>
-          <li v-for="comment in content.comments" class="commentItem">
+          <li v-for="comment in commentsComputed" class="commentItem">
             <p class="commentTopbar">
               <span class="postman">{{ comment.username }}</span>
               <span class="time">{{ comment.postTime }}</span>
@@ -41,15 +41,15 @@
           </li>
         </ul>
       </div>
-      <!--<nav class="v-pager">-->
-        <!--<el-pagination-->
-          <!--background-->
-          <!--@current-change="handleCurrentChange"-->
-          <!--layout="prev, pager, next,total"-->
-          <!--:total="content.comments.length"-->
-          <!--:page-size="limit"-->
-        <!--&gt; </el-pagination>-->
-      <!--</nav>-->
+      <nav class="v-pager">
+        <el-pagination
+          background
+          @current-change="handleCurrentChange"
+          layout="prev, pager, next,total"
+          :total="count"
+          :page-size="limit">
+        </el-pagination>
+      </nav>
     </div>
   </div>
 </template>
@@ -69,7 +69,9 @@
         load: false,
         content: {},
         editing_comment: "",
-        limit:5
+        limit:5,
+        commentsComputed:{},
+        count:0
       }
     },
     created() {
@@ -90,19 +92,7 @@
         }
       });
       this.load = true;
-      this.$http.get('/main/view?contentid=' + this.$route.query['id']).then(response => {
-        this.load = false;
-        this.content = response.data.content
-        this.content.addTime = this.formatDate(this.content.addTime);
-        this.content.comments.reverse();
-        this.content.comments.forEach((comment) => {
-          comment.postTime = this.formatDate(comment.postTime);
-        });
-        // this.content.comments=this.content.comments.slice(0,5);
-        console.log(this.content.comments)
-      }, response => {
-        console.log('error:' + response);
-      })
+      this.fetchData();
     },
     computed: {
       compiledMarkdown: function () {
@@ -130,12 +120,32 @@
           this.content.comments.forEach((comment) => {
             comment.postTime = this.formatDate(comment.postTime);
           });
+          this.count=this.content.comments.length;
+          this.handleCurrentChange(1);
         }, response => {
           console.log(response.data);
         })
       },
-      handleCurrentChange(val){
-        console.log(`当前页: ${val}`);
+      handleCurrentChange(currentPage){
+        var pageSize=this.limit;
+        var start=pageSize*(currentPage-1);
+        var end=pageSize*(currentPage);
+        this.commentsComputed=this.content.comments.slice(start,end)
+      },
+      fetchData(){
+        this.$http.get('/main/view?contentid=' + this.$route.query['id']).then(response => {
+          this.load = false;
+          this.content = response.data.content
+          this.content.addTime = this.formatDate(this.content.addTime);
+          this.content.comments.reverse();
+          this.content.comments.forEach((comment) => {
+            comment.postTime = this.formatDate(comment.postTime);
+          });
+          this.count=this.content.comments.length;
+          this.handleCurrentChange(1);
+        }, response => {
+          console.log('error:' + response);
+        })
       }
     }
   }
