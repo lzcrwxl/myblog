@@ -3,7 +3,9 @@
     <nav-head></nav-head>
     <div class="main">
       <div class="mainLeft">
-        <router-view id="levelTwo" :user="user">
+        <router-view id="levelTwo" :user="user"
+                     transition="fade"
+                     transition-mode="out-in">
 
         </router-view>
       </div>
@@ -39,7 +41,7 @@
         </div>
 
         <div class="info" v-show="showLogined">
-          <div class="title">你好,{{username}} <span class="text-danger"></span></div>
+          <div class="title">你好,<span class="text-danger">{{username}} </span></div>
           <p v-if="isAdmin">您是管理员,可以进入
             <el-button type="text">
               <router-link to="/admin">后台管理</router-link>
@@ -129,7 +131,12 @@
       }
     }
   }
-
+  .fade-transition{
+    transition: opacity .2s ease
+  }
+  .fade-enter, .fade-leave{
+    opacity: 0;
+  }
 
 </style>
 <script>

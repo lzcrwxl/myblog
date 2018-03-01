@@ -5,14 +5,14 @@
         <a class="navbar-brand" href="#">Musk</a>
       </div>
       <ul class="nav">
-        <li @click="switchTab" class="activeTab">
+        <li>
           <router-link to="/">
             首页
             {{category}}
           </router-link>
           </li>
-        <li v-for="(item,index) in categories" @click="switchTab">
-          <router-link :to="{path:'/category',query:{id:item._id}}" :class="{'activeTab':item._id==category}">{{item.name}}</router-link>
+        <li v-for="(item,index) in categories">
+          <router-link :to="{path:'/category',query:{id:item._id}}">{{item.name}}</router-link>
         </li>
       </ul>
     </div>
@@ -43,7 +43,7 @@
         })
       },
       switchTab(e){
-        $(e.currentTarget).addClass('activeTab').siblings('li').removeClass('activeTab')
+        // $(e.currentTarget).addClass('activeTab').siblings('li').removeClass('activeTab')
       }
     }
   }
@@ -51,8 +51,9 @@
 
 <style lang="less" rel="stylesheet/less" scoped>
   .activeTab{
-    border-bottom: 3px solid #42b983!important;
+    /*border-bottom: 3px solid #42b983!important;*/
   }
+
   .header {
     box-sizing: border-box;
     height: 90px;
@@ -85,7 +86,11 @@
             &:hover {
               border-bottom: 3px solid #42b983;
             }
+            &.router-link-exact-active {
+              border-bottom: 3px solid #42b983!important;
+            }
           }
+
         }
       }
     }
